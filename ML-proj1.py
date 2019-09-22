@@ -1,35 +1,90 @@
 import numpy as np
 import pandas as pd
+import numbers
+import decimal
+import logisticRegression as lR
+
+
+#auxiliary functions
+ 
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
 
 print("----------------TASK 1-----------------")
 
 wine_data = pd.read_csv('winequality-red.csv',sep=";", header=None)
 cancer_data = pd.read_csv('breast-cancer-wisconsin.data',sep=",", header=None)
 
-print(wine_data)
+ 
+#Task 1   --    Acquire, Preprocess, and Analyze the Data
+ 
+#Importing data
+ 
+#Replace this with just the name of file if on PC
+wine_data = pd.read_csv('winequality-red.csv',sep=";", header=None)
+cancer_data = pd.read_csv('breast-cancer-wisconsin.data',sep=",", header=None)
 
-# class LogisticRegression:
-#      def __init__(self, *args, **kwargs):
 
-#     def sigmoid(z):
-#         return 1/(1 +np.exp(-z))
+# wine_data = pd.read_csv('/Users/aaronsossin/Documents/Fall2019/COMP551/winequality-red.csv', sep=';',header=None)
+# cancer_data = pd.read_csv('/Users/aaronsossin/Documents/Fall2019/COMP551/breast-cancer-wisconsin.data', sep=',',header=None)
+ 
 
-# z= np.dot(X,theta)
-# h = sigmoid(z)
+def deleteMalformedRows(d):
+    rowsToDelete = []
+    co = 0
+    for index, row in d.iterrows():
+        for cell in row:
+            if not is_number(cell):
+                print(cell)
+                rowsToDelete.append(co)
+                break
+        co = co + 1
+    
+    for r in rowsToDelete:
+        d.drop([r], inplace = True)
+    
+    return d
+ 
+wine_data = deleteMalformedRows(wine_data)
+cancer_data = deleteMalformedRows(cancer_data)
+ 
+def convertLastColumnToBinary(d):
+    c = 0 #counter
+    for num in d.iloc[:,-1]: #for each value in last column
+        if (float(num) < 6.0):
+            d.iat[c,-1] = 0 #update array
+        else:
+            d.iat[c,-1] = 1
+        c = c + 1
+    return d
+ 
+wine_data = convertLastColumnToBinary(wine_data)
+ 
+def convertToNum(a):
+    for x in range(0, a.shape[0]):
+        for y in range(0, a.shape[1]):
+            a.iloc[x,y] = float(a.iloc[x,y])
+ 
+ 
+ 
+convertToNum(wine_data)
+convertToNum(cancer_data)
+#Statistics
+ 
+num1 = np.count_nonzero(wine_data.iloc[:,-1])
+num0 = wine_data.shape[0] - num1
+percent0 = (num0) / (wine_data.shape[0]) * 100
+print(percent0)
+ 
+print("-------logistic regression--------------")
+var = lR.logisticRegression(wine_data.iloc[:,:-1], wine_data.iloc[:,-1], 5, 1)
+var.start(1.5)
 
-#     def loss(h,y):
-#         return (-y * np.log(h) - (1-y) * np.log(1-h)).mean()
 
-#     gradient = np.dot(X.T, (h-y)) / y.shape[0]
-
-#     lr = 0.01
-#     theta -= lr * gradient
-
-#     def predict_probs(X,theta):
-#         return sigmoid(np.dot(X, theta))
-
-#     def predict(X, theta, threshold = 0.5):
-#         return predict_probs(X, theta) >= threshold
 
 # class LogisticRegression:
 #     def __init__(self, lr=0.01, num_iter=100000, fit_intercept=True, verbose=False):
@@ -41,10 +96,15 @@ print(wine_data)
 #         intercept = np.ones((X.shape[0], 1))
 #         return np.concatenate((intercept, X), axis=1)
     
+#     #This is correct so far
 #     def __sigmoid(self, z):
 #         return 1 / (1 + np.exp(-z))
-#     def __loss(self, h, y):
-#         return (-y * np.log(h) - (1 - y) * np.log(1 - h)).mean()
+
+#     weight= 0.5
+#     z= np.dot(cancer_data,weight)
+
+#     # def __loss(self, h, y):
+#     #     return (-y * np.log(h) - (1 - y) * np.log(1 - h)).mean()
     
 #     def fit(self, X, y):
 #         if self.fit_intercept:
@@ -54,13 +114,18 @@ print(wine_data)
 #         self.theta = np.zeros(X.shape[1])
         
 #         for i in range(self.num_iter):
+
 #             z = np.dot(X, self.theta)
 #             h = self.__sigmoid(z)
 #             gradient = np.dot(X.T, (h - y)) / y.size
 #             self.theta -= self.lr * gradient
             
 #             if(self.verbose == True and i % 10000 == 0):
+                
+#                 #fix z equation
 #                 z = np.dot(X, self.theta)
+
+
 #                 h = self.__sigmoid(z)
 #                 print(f'loss: {self.__loss(h, y)} \t')
     
@@ -72,6 +137,3 @@ print(wine_data)
     
 #     def predict(self, X, threshold):
 #         return self.predict_prob(X) >= threshold
-
-
-# model = LogisticRegression(lr = 0.1, num_iter = 300000) %time model.fit(X, y)
