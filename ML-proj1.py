@@ -3,6 +3,7 @@ import pandas as pd
 import numbers
 import decimal
 import logisticRegression as lR
+import linearDiscriminantAnalysis as lDA
 
 
 #auxiliary functions
@@ -73,16 +74,26 @@ def convertToNum(a):
  
 convertToNum(wine_data)
 convertToNum(cancer_data)
+
 #Statistics
  
-num1 = np.count_nonzero(wine_data.iloc[:,-1])
-num0 = wine_data.shape[0] - num1
-percent0 = (num0) / (wine_data.shape[0]) * 100
-print(percent0)
+# num1 = np.count_nonzero(wine_data.iloc[:,-1])
+# num0 = wine_data.shape[0] - num1
+# percent0 = (num0) / (wine_data.shape[0]) * 100
+# print(percent0)
+
+
  
-print("-------logistic regression--------------")
-var = lR.logisticRegression(wine_data.iloc[:,:-1], wine_data.iloc[:,-1], 5, 1)
-var.start(1.5)
+# print("-------logistic regression--------------")
+# var = lR.logisticRegression(wine_data.iloc[:,:-1], wine_data.iloc[:,-1], 5, 1)
+# var.start(1.5)
+
+print("---------linear discriminant analysis------------")
+var = lDA.linearDiscriminantAnalysis(wine_data.iloc[:,:-1])
+print("Prob of 1")
+var.NumberOfPositiveValues(wine_data)
+print("Prob of 0")
+var.NumberOfNegativeValues(wine_data)
 
 
 
