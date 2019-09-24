@@ -24,6 +24,24 @@ class linearDiscriminantAnalysis:
         print(probOf0) 
 
     
+    def split_data(self, X):
+        y = X[:,-1]
+        sum0 = 0
+        sum1 = 0
+        
+
+        for i in range(y):
+            if y[i] == 0:
+                w = X[i,:]
+                for j in range(w):
+                    sum0 += w[j]
+                    
+
+
+
+
+
+    
 
     def calculate_covariance_matrix(X, Y=None):
         if Y is None:
@@ -42,4 +60,3 @@ class linearDiscriminantAnalysis:
 
         cVariance = cVariance_0 + cVariance_1
 
-        
