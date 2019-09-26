@@ -52,12 +52,36 @@ class linearDiscriminantAnalysis:
                 
 
 
-
-
-
+    def predict_A (self,X,y,CovI,u0,u1,P0,P1):
+        
+        #(CovI,u0,u1,P0,P1)=self.fit(X,y)
+        correct=0.0;
+        incorrect=0.0;
+        (a,b)=np.shape(X)
+        for i in range(np.shape(X)[0]):
+            x0=X.iloc[i:i+1,0:b]
+            ans=self.predict(CovI,u0,u1,P0,P1,x0)
+            if ans==y.iloc[i]:
+                correct+=1
+            else:
+                incorrect+=1
+        return (correct/(incorrect+correct))
+    def predict_k(self,X,y,k):
+        num = int((np.shape(X)[0]))
+        foldLength=int((num/k))
+        myl=[]
+        
+        for a in range(0,k*foldLength,foldLength):
+            training = X.drop(X.index[a:a + foldLength])
+            resTraining = y.drop(y.index[a:a + foldLength]) #actual results
+            testInp = X.iloc[a: a + foldLength] #fold for testing
+            testOutp = y.iloc[a: a + foldLength] #result of fold for testing
+            (CovI,u0,u1,P0,P1)=self.fit(training,resTraining)
+            myl.append(self.predict_A(testInp,testOutp,CovI,u0,u1,P0,P1))
+        return myl
     
-    def predict(self,X,y,x0):
-        (CovI,u0,u1,P0,P1)=self.fit(X,y)
+    def predict(self,CovI,u0,u1,P0,P1,x0):
+        #(CovI,u0,u1,P0,P1)=self.fit(X,y)
         a=x0.dot(CovI).dot(u0)-0.5*u0.T.dot(CovI).dot(u0)+P0
         a=a.values.astype(float)
         a=a[0]
