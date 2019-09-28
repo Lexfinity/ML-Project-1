@@ -80,6 +80,11 @@ def deleteMalformedRows(d):
 wine_data = deleteMalformedRows(wine_data)
 cancer_data = deleteMalformedRows(cancer_data)
  
+def convertToNum(a):
+    for x in range(0, a.shape[0]):
+        for y in range(0, a.shape[1]):
+            a.iloc[x,y] = float(a.iloc[x,y])
+
 def convertLastColumnToBinary(d):
     c = 0 #counter
     for num in d.iloc[:,-1]: #for each value in last column
@@ -99,64 +104,118 @@ def convertCancerToBinary(d):
             d.iat[c,-1] = 1
         c = c + 1
     return d
- 
-wine_data = convertLastColumnToBinary(wine_data)
-cancer_data = convertCancerToBinary(cancer_data)
- 
-def convertToNum(a):
-    for x in range(0, a.shape[0]):
-        for y in range(0, a.shape[1]):
-            a.iloc[x,y] = float(a.iloc[x,y])
- 
- 
- 
+
+
+#CHECK CORRELATION FOR EACH FEATURE
+wX = wine_data.iloc[:,: -1].values.astype(float)
+wY = wine_data.iloc[:,-1].values.astype(float)
+
+
+def featureCorrelation(inp, outp):
+        for i in range(np.shape(inp)[1]):
+            x = x.iloc[:,i -1]
+            featCorr = np.corrcoef(x, outp)
+            return featCorr
+
+
+
+print("Correlation Coefficient for Wine: ")
+featCorrWine = np.corrcoef(wX,wY, rowvar=False)
+print(featCorrWine[:][wine_data.shape[1] -1])
+
+cX = cancer_data.iloc[:,: -1].values.astype(float)
+cY = cancer_data.iloc[:,-1].values.astype(float)
+
+print("Correlation Coefficient for Cancer: ")
+featCorrCancer = np.corrcoef(cX,cY, rowvar=False)
+print(featCorrCancer[:][cancer_data.shape[1] - 1])
+
+# print(featureCorrelation(wine_data.iloc[:,1], wine_data.iloc[:,-1]))
 convertToNum(wine_data)
 convertToNum(cancer_data)
+wine_dataB = convertLastColumnToBinary(wine_data)
+cancer_dataB = convertCancerToBinary(cancer_data)
+wineLR = lR.logisticRegression(wine_dataB.iloc[:,:-1], wine_dataB.iloc[:,-1], 0.1, 100, 0, 5)
+accuracy = wineLR.start()
+print(accuracy)
+
+
+"""
+WORKING CASE
+
+def featureCorrelation(inp, outp):
+        featCorr = np.corrcoef(inp, outp)
+        return featCorr
+
+x = wine_data.iloc[:,-1].values.astype(float)
+y = wine_data.iloc[:,2].values.astype(float)
+
+
+print("Correlation Coefficient: ")
+featCorr = np.corrcoef(x,y, rowvar=False)
+print(featCorr)
+# print(featureCorrelation(wine_data.iloc[:,1], wine_data.iloc[:,-1]))
+"""
+
+# wine_data = convertLastColumnToBinary(wine_data)
+# cancer_data = convertCancerToBinary(cancer_data)
  
-#wine_data = Stats.removeOutliers(wine_data)
-#Stats.normalityOfFeatures(wine_data)
-#ratioOnes = Stats.ratioOfOnes(wine_data.iloc[:,-1])
+# def convertToNum(a):
+#     for x in range(0, a.shape[0]):
+#         for y in range(0, a.shape[1]):
+#             a.iloc[x,y] = float(a.iloc[x,y])
  
-print("-------logistic regression--------------")
-wineLR = lR.logisticRegression(wine_data.iloc[:,:-1], wine_data.iloc[:,-1], 0.1, 100, 0,5) 
-wineLR.start()
-cancerLR = lR.logisticRegression(cancer_data.iloc[:,:-1], cancer_data.iloc[:,-1], 0.1, 100, 0,5) 
-cancerLRaccuracy = cancerLR.start()
-#print("-----------------LDA------------------------------") 
-print("---------linear discriminant analysis------------")
-var = lDA.linearDiscriminantAnalysis(cancer_data.iloc[:,:-1])
-var = lDA.linearDiscriminantAnalysis(wine_data.iloc[:,:-1])
-wd=wine_data.iloc[:,0:11]
-x0=wine_data.iloc[3:4,0:11]
-#(ans,inc,cor)=var.predict_A(wd,wine_data.iloc[:,-1])
-myl=var.predict_k(wd,wine_data.iloc[:,-1],5)
-
-print("LDA accuracy wine Discriminant")
-print(*myl, sep = ", ") 
-print(sum(myl)/len(myl))
-myl=var.predict_k_Log_odds(wd,wine_data.iloc[:,-1],5)
-print("LDA accuracy wine Log odds")
-print(*myl, sep = ", ") 
-print(sum(myl)/len(myl))
-myl=var.predict_k_QDA(wd,wine_data.iloc[:,-1],5)
-
-print("QDA accuracy wine")
-print(*myl, sep = ", ") 
-print(sum(myl)/len(myl))
+ 
+ 
+# convertToNum(wine_data)
+# convertToNum(cancer_data)
+ 
+# #wine_data = Stats.removeOutliers(wine_data)
+# #Stats.normalityOfFeatures(wine_data)
+# #ratioOnes = Stats.ratioOfOnes(wine_data.iloc[:,-1])
+ 
+# print("-------logistic regression--------------")
+# # wineLR = lR.logisticRegression(wine_data.iloc[:,:-1], wine_data.iloc[:,-1], 0.1, 100, 0,5) 
+# # wineLR.start(0.5)
+# # cancerLR = lR.logisticRegression(cancer_data.iloc[:,:-1], cancer_data.iloc[:,-1], 0.1, 100, 0,5) 
+# # cancerLRaccuracy = cancerLR.start(1.5)
+# #print("-----------------LDA------------------------------") 
 
 
-myl=var.predict_k(cancer_data.iloc[:,0:10],cancer_data.iloc[:,-1],5)
-print("LDA accuracy cancer Discriminant")
-print(*myl, sep = ", ") 
-print(sum(myl)/len(myl))
-myl=var.predict_k_Log_odds(cancer_data.iloc[:,0:10],cancer_data.iloc[:,-1],5)
-print("LDA accuracy cancer Log odds")
-print(*myl, sep = ", ") 
-print(sum(myl)/len(myl))
-myl=var.predict_k_QDA(cancer_data.iloc[:,0:10],cancer_data.iloc[:,-1],5)
-print("QDA accuracy cancer")
-print(*myl, sep = ", ") 
-print(sum(myl)/len(myl)) 
+# print("---------linear discriminant analysis------------")
+# var = lDA.linearDiscriminantAnalysis(cancer_data.iloc[:,:-1])
+# var = lDA.linearDiscriminantAnalysis(wine_data.iloc[:,:-1])
+# wd=wine_data.iloc[:,0:11]
+# x0=wine_data.iloc[3:4,0:11]
+# # (ans,inc,cor)=var.predict_A(wd,wine_data.iloc[:,-1])
+# myl= var.predict_k(wd,wine_data.iloc[:,-1],5)
+
+# print("LDA accuracy wine Discriminant")
+# print(*myl, sep = ", ") 
+# print(sum(myl)/len(myl))
+# myl= var.predict_k_Log_odds(wd,wine_data.iloc[:,-1],5)
+# print("LDA accuracy wine Log odds")
+# print(*myl, sep = ", ") 
+# print(sum(myl)/len(myl))
+# myl=var.predict_k_QDA(wd,wine_data.iloc[:,-1],5)
+
+# print("QDA accuracy wine")
+# print(*myl, sep = ", ") 
+# print(sum(myl)/len(myl))
+
+
+# myl=var.predict_k(cancer_data.iloc[:,0:10],cancer_data.iloc[:,-1],5)
+# print("LDA accuracy cancer Discriminant")
+# print(*myl, sep = ", ") 
+# print(sum(myl)/len(myl))
+# myl=var.predict_k_Log_odds(cancer_data.iloc[:,0:10],cancer_data.iloc[:,-1],5)
+# print("LDA accuracy cancer Log odds")
+# print(*myl, sep = ", ") 
+# print(sum(myl)/len(myl))
+# myl=var.predict_k_QDA(cancer_data.iloc[:,0:10],cancer_data.iloc[:,-1],5)
+# print("QDA accuracy cancer")
+# print(*myl, sep = ", ") 
+# print(sum(myl)/len(myl)) 
 
  
  

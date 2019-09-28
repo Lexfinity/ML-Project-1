@@ -1,11 +1,7 @@
-import math
-import numpy as np
- 
-class logisticRegression:
- 
-    def __init__(self, input, output, learningRate, descents):import math
+import math 
 import numpy as np
 from statistics import mean
+import pandas as pd
  
 class logisticRegression:
  
@@ -18,7 +14,7 @@ class logisticRegression:
         self.folds = folds
  
     def sigma(self,x):
-        return 1 / (1 + np.exp((-(x))))
+        return 1 / (1 + np.exp(-(x)))
  
     def updateFunction(self,x,y,w):
         w = np.array(w) #for syntax purposes
@@ -28,7 +24,8 @@ class logisticRegression:
         for z in range(0,len(x.iloc[:,1])): #for each row
             l = np.multiply(x.iloc[z,:],(np.subtract(y.iloc[z],self.sigma(np.dot(w.T,x.iloc[z,:]))))) #update function
             cur = np.add(cur,l)
-        return w + np.multiply(self.learningRate,cur) #updated w
+        return w + self.learningRate * cur
+        #return w + np.multiply(self.learningRate,cur) #updated w
  
     def predict(self, x, w):
         sum = 0
@@ -54,10 +51,10 @@ class logisticRegression:
             resTraining = self.output.drop(self.output.index[a:a + foldLength]) #actual results
             testInp = self.input.iloc[a: a + foldLength] #fold for testing
             testOutp = self.output.iloc[a: a + foldLength] #result of fold for testing
- 
+            #print(testInp)
             w = self.findW(training, resTraining)
             accuracy = self.findAccuracy(w, testInp, testOutp)
- 
+            #print(a + foldLength)
             ws.append(w)
             accuracies.append(accuracy)
         return [ws, accuracies]
@@ -88,20 +85,33 @@ class logisticRegression:
                  correct = correct + 1.0
         return correct / (len(inp.iloc[:,1])) * 100.0
  
-    """
+    
     def addFeatures(self):
-        x = self.input
-        newColumns = []
         for a in range(len(self.input.iloc[1,:])):
-            b = []
-            for c in range(len(self.input.iloc[:,1])):
-                val = self.input.iloc[c,a]
-                b.append(val + val * val)
-            newColumns.append(b)
-        self.input.append(newColumns, axis = 1)
-    """
+            b = [None]*len(self.input.iloc[:,a])
+            for c in range(len(self.input.iloc[:,a])):
+                val = self.input.iloc[c][a]
+                b[c] = (val + val * val)
+            b = np.array(b)
+            self.input = pd.DataFrame(np.column_stack((self.input, b)))
+    
+    def addInteractionTerms(self):
+         for a in range(len(self.input.iloc[1,:])-1):
+            b = [None]*(len(self.input.iloc[:,a]))
+            for c in range(len(self.input.iloc[:,a])):
+                val = self.input.iloc[c][a]
+                val2 = self.input.iloc[c][a+1]
+                b[c] = val * val2
+            b = np.array(b)
+            self.input = pd.DataFrame(np.column_stack((self.input, b)))
+ 
+    
  
     def start(self):
+        #print(self.learningRate)
+        #self.addFeatures()
+        #self.addInteractionTerms()
+        #print(self.input)
         ws, accuracies = self.crossFoldExamination()
  
         print("ACCURACIES")
@@ -110,91 +120,24 @@ class logisticRegression:
         bestW = bestCombo[0]
         bestAcc = bestCombo[1]
  
-        print("BEST W")
-        print(bestW)
+        #print("BEST W")
+        #print(bestW)
  
-        print("BEST ACCURACY")
-        print(bestAcc)
+        #print("BEST ACCURACY")
+        #print(bestAcc)
  
         averageWeight = [0]*len(bestW)
         for b in ws:
             averageWeight = np.add(averageWeight,b)
         averageWeight = averageWeight / len(ws)
  
-        print("AVERAGE WEIGHTS")
-        print(averageWeight)
+        #print("AVERAGE WEIGHTS")
+        #print(averageWeight)
  
-        print("MEAN ACCURACY")
+        #print("MEAN ACCURACY")
+        #print(mean(accuracies))
+ 
+        #print("Average weight tested on entire input")
+        #print(self.findAccuracy(bestW, self.input, self.output))
         print(mean(accuracies))
- 
-        print("Average weight tested on entire input")
-        print(self.findAccuracy(bestW, self.input, self.output))
         return mean(accuracies)
- 
- 
- 
- 
- 
- 
- 
-        
- 
-    
- 
-    
- 
-        
- 
- 
- 
- 
-
-        self.input = input
-        self.output = output
-        self.learningRate = learningRate
-        self.descents = descents
-        self.numberOfInputs = input.shape[0]
- 
-    def sigma(self,x):
-        output = 1 / (1 + (math.e ** (-(x))))
-        return output
- 
-    def updateFunction(self,x,y,w,n):
-        print("update function")
-        w = np.array(w)
-        
-        cur = [0.0] * len(w)
-        counter = 0
-        l = [0.0] * len(w)
-        for z in range(0,n):
-            try:
-                l = np.multiply(x.iloc[z,:],(y.iloc[z] - self.sigma(np.dot(w.T,x.iloc[z,:]))))
-            except: 
-                counter = counter + 1
-            cur = np.add(cur,l)
-        updated = w + np.multiply(self.learningRate,cur)
-        return updated
-    
-    def predict(self, x, y, w):
-        print(x)
-        sum = 0
-        for z in range(len(w)):
-            sum = sum + w[z] * x.iloc[z]
-        a = sum
-        print(a)
-        probability = self.sigma(a)
-        print(probability)
-        
-       
-    
-    def start(self, initialWeight):
-        iterations = 5
-        w = [initialWeight]
-        for d in range(0,len(self.input.iloc[0,:])-1):
-            w.append(initialWeight)
-        for c in range(0,5): #screw iterations for now. 
-            w = self.updateFunction(self.input, self.output, w, self.numberOfInputs)
-        # print(w)
-        for e in range(0,len(w)):
-            w[e] = math.log(-w[e])
-        self.predict(self.input.iloc[0,:], self.output.iloc[0], w)
