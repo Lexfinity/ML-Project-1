@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import numbers
 import decimal
+import math
 import logisticRegression as lR
 import linearDiscriminantAnalysis as lDA
 import scipy.stats as ss
@@ -116,12 +117,22 @@ convertToNum(cancer_data)
 #wine_data = Stats.removeOutliers(wine_data)
 #Stats.normalityOfFeatures(wine_data)
 #ratioOnes = Stats.ratioOfOnes(wine_data.iloc[:,-1])
- 
 print("-------logistic regression--------------")
-wineLR = lR.logisticRegression(wine_data.iloc[:,:-1], wine_data.iloc[:,-1], 0.1, 100, 0,5) 
-wineLR.start()
+"""wineLR = lR.logisticRegression(wine_data.iloc[:,:-1], wine_data.iloc[:,-1], 0.1, 100, 0,5) 
+start = time.time()
+acc=wineLR.start()
+end = time.time()
+print("wine")
+print(acc)
+print(end-start)"""
+
 cancerLR = lR.logisticRegression(cancer_data.iloc[:,:-1], cancer_data.iloc[:,-1], 0.1, 100, 0,5) 
-cancerLRaccuracy = cancerLR.start()
+start = time.time()
+acc = cancerLR.start()
+end = time.time()
+print("cancer")
+print(acc)
+print(end-start)
 #print("-----------------LDA------------------------------") 
 print("---------linear discriminant analysis------------")
 var = lDA.linearDiscriminantAnalysis(cancer_data.iloc[:,:-1])
@@ -129,6 +140,80 @@ var = lDA.linearDiscriminantAnalysis(wine_data.iloc[:,:-1])
 wd=wine_data.iloc[:,0:11]
 x0=wine_data.iloc[3:4,0:11]
 #(ans,inc,cor)=var.predict_A(wd,wine_data.iloc[:,-1])
+start = time.time()
+myl=var.predict_k_Log_odds(wd,wine_data.iloc[:,-1],5)
+end = time.time()
+print("wine")
+print(*myl, sep = ", ")
+print(end-start)
+print(sum(myl)/len(myl))
+start = time.time()
+myl=var.predict_k_Log_odds(cancer_data.iloc[:,0:10],cancer_data.iloc[:,-1],5)
+end = time.time()
+print("cancer")
+print(*myl, sep = ", ") 
+print(end-start)
+print(sum(myl)/len(myl))
+print("---------LDA k-fold tests------------")
+"""k_lda=[]
+k_lda_avg=[]
+k_lda_time=[]
+y=math.log2(np.shape(wd)[0])
+x=int(y)
+for a in range(1,x,1):
+    b=a
+    b=int(math.ldexp(1,a))
+    print("starting %d" %(b))
+    start = time.time()
+    myl=var.predict_k_QDA(wd,wine_data.iloc[:,-1],b)
+    end = time.time()
+    k_lda.append(b)
+    k_lda_avg.append(sum(myl)/len(myl))
+    k_lda_time.append(end-start)
+
+print("starting last one")
+start = time.time()
+myl=var.predict_k_QDA(wd,wine_data.iloc[:,-1],(np.shape(wd)[0]))
+end = time.time()
+k_lda.append((np.shape(wd)[0]))
+k_lda_avg.append(sum(myl)/len(myl))
+k_lda_time.append(end-start)
+print(*k_lda, sep = ", ") 
+print(*k_lda_avg, sep = ", ") 
+print(*k_lda_time, sep = ", ") 
+"""
+"""
+print("---------LDA k-fold tests cancer------------")
+k_lda=[]
+k_lda_avg=[]
+k_lda_time=[]
+y=math.log2(np.shape(cancer_data.iloc[:,0:10])[0])
+x=int(y)
+for a in range(1,x,1):
+    b=a
+    b=int(math.ldexp(1,a))
+    print("starting %d" %(b))
+    start = time.time()
+    myl=var.predict_k(cancer_data.iloc[:,0:10],cancer_data.iloc[:,-1],b)
+    end = time.time()
+    k_lda.append(b)
+    k_lda_avg.append(sum(myl)/len(myl))
+    k_lda_time.append(end-start)
+print(*k_lda, sep = ", ") 
+print(*k_lda_avg, sep = ", ") 
+print(*k_lda_time, sep = ", ") 
+"""
+"""print("starting last one")
+start = time.time()
+myl=var.predict_k_Log_odds(cancer_data.iloc[:,0:10],cancer_data.iloc[:,-1],(np.shape(cancer_data.iloc[:,0:10])[0]))
+end = time.time()
+k_lda.append((np.shape(cancer_data.iloc[:,0:10])[0]))
+k_lda_avg.append(sum(myl)/len(myl))
+k_lda_time.append(end-start)
+print(*k_lda, sep = ", ") 
+print(*k_lda_avg, sep = ", ") 
+print(*k_lda_time, sep = ", ") 
+""""""
 myl=var.predict_k(wd,wine_data.iloc[:,-1],5)
 
 print("LDA accuracy wine Discriminant")
@@ -158,9 +243,10 @@ print("QDA accuracy cancer")
 print(*myl, sep = ", ") 
 print(sum(myl)/len(myl)) 
 
- 
+" 
  
 print("---------TASK 3----------")
+"""
 """
 print("1")
 learningRates = [0.01, 0.1, 1, 10, 100]
