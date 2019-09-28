@@ -1,6 +1,6 @@
 import math
 import numpy as np
-import pandas as pd
+import pandas as pdimport math
 import numpy as np
 import pandas as pd
 import sys
@@ -43,8 +43,8 @@ class linearDiscriminantAnalysis:
             else:
                 incorrect+=1
         return (correct/(incorrect+correct))
-        
     def predict_A_Log_odds (self,X,y,CovI,u0,u1,P0,P1):
+        
         #(CovI,u0,u1,P0,P1)=self.fit(X,y)
         correct=0.0;
         incorrect=0.0;
@@ -57,8 +57,8 @@ class linearDiscriminantAnalysis:
             else:
                 incorrect+=1
         return (correct/(incorrect+correct))
-
-    def predict_A_QDA (self,X,y,CovI0,CovI1,det0,det1,u0,u1,P0,P1): 
+    def predict_A_QDA (self,X,y,CovI0,CovI1,det0,det1,u0,u1,P0,P1):
+        
         #(CovI0,CovI1,det0,det1,u0,u1,P0,P1)=self.fit_QDA(X,y)
         correct=0.0;
         incorrect=0.0;
@@ -71,7 +71,6 @@ class linearDiscriminantAnalysis:
             else:
                 incorrect+=1
         return (correct/(incorrect+correct))
-        
     def predict_k(self,X,y,k):
         num = int((np.shape(X)[0]))
         foldLength=int((num/k))
@@ -85,11 +84,11 @@ class linearDiscriminantAnalysis:
             (CovI,u0,u1,P0,P1)=self.fit(training,resTraining)
             myl.append(self.predict_A(testInp,testOutp,CovI,u0,u1,P0,P1))
         return myl
-
     def predict_k_Log_odds(self,X,y,k):
         num = int((np.shape(X)[0]))
         foldLength=int((num/k))
         myl=[]
+        
         for a in range(0,k*foldLength,foldLength):
             training = X.drop(X.index[a:a + foldLength])
             resTraining = y.drop(y.index[a:a + foldLength]) #actual results
@@ -98,7 +97,6 @@ class linearDiscriminantAnalysis:
             (CovI,u0,u1,P0,P1)=self.fit(training,resTraining)
             myl.append(self.predict_A_Log_odds(testInp,testOutp,CovI,u0,u1,P0,P1))
         return myl
-
     def predict_k_QDA(self,X,y,k):
         num = int((np.shape(X)[0]))
         foldLength=int((num/k))
@@ -259,8 +257,8 @@ class linearDiscriminantAnalysis:
     def predict_A (self,X,y,CovI,u0,u1,P0,P1):
         
         #(CovI,u0,u1,P0,P1)=self.fit(X,y)
-        correct=0.0
-        incorrect=0.0
+        correct=0.0;
+        incorrect=0.0;
         (a,b)=np.shape(X)
         for i in range(np.shape(X)[0]):
             x0=X.iloc[i:i+1,0:b]
@@ -284,7 +282,6 @@ class linearDiscriminantAnalysis:
             else:
                 incorrect+=1
         return (correct/(incorrect+correct))
-
     def predict_k(self,X,y,k):
         num = int((np.shape(X)[0]))
         foldLength=int((num/k))
